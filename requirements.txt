@@ -1,0 +1,6 @@
+fastapi[standard]
+httpx
+jupyterlab
+pandas
+cartopy
+scipy
