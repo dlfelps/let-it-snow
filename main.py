@@ -40,8 +40,8 @@ def on_startup():
 
 @app.get("/cities/{query_city}", status_code=200)
 def get_post(query_city: str, session: SessionDep) -> ResolvedCity:
-  # city = check_cache(query_city) 
-  city = None
+  city = get_city(query_city, session) # returns None if not found
+
   if not city: #not found in cache
 
     snow_data = lookup_city(query_city)
