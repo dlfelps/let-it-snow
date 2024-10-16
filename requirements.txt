@@ -1,6 +1,4 @@
 fastapi[standard]
 httpx
-jupyterlab
-pandas
 scipy
-peewee
+sqlmodel

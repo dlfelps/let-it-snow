@@ -1,27 +1,26 @@
 import httpx
 import urllib.parse
 from datetime import date
-from models import City
 from functools import reduce
 from scipy.stats import nbinom
-from datetime import datetime
+from datetime import date
 import os
+from models import SnowData
 
-# TODO remove api dep
-WEATHER_API_KEY="96F785YBQ6H9WSZF4CAMDWZWM"
+
 WEATHER_API_KEY= os.getenv("WEATHER_API_KEY")
 WEATHER_API_URL="https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/"
 
 
 
-def next_christmas() -> datetime:
-    now = datetime.now()
-    this_christmas = datetime(now.year,12,25,23,59,59) #christmas of the same year
+def next_christmas() -> date:
+    today = date.today()
+    this_christmas = date(today.year,12,25) #christmas of the same year
 
-    if now < this_christmas: #before christmas
+    if today < this_christmas: #before end of christmas day
         next_christmas = this_christmas
     else:
-        next_christmas = datetime(now.year + 1,12,25,23,59,59) # you have to wait another year
+        next_christmas = date(today.year + 1,12,25) # you have to wait another year
     return next_christmas
 
 def get_current_year():
@@ -83,7 +82,7 @@ def lookup_city(query_city):
         most_recent = f"There hasn't been a recorded white Chirstmas in {resolved_name} since 2000."
         next_predicted = f"Unable to predict next white Christmas in {resolved_name}."
 
-    return City(name=query_city, 
+    return SnowData(name=query_city, 
                 resolved_name=resolved_name,
                 most_recent=most_recent,
                 next_predicted=next_predicted)
