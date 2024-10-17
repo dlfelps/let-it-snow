@@ -17,12 +17,23 @@ def update_cache(snow_data: SnowData, session: Session) -> None:
         session.add(resolved_city)
         session.commit()
         session.refresh(resolved_city)
+    else: # found, but needs updating due to expired cache
+        resolved_city.most_recent = snow_data.most_recent
+        resolved_city.next_predicted = snow_data.most_recent
+        resolved_city.expires = next_christmas()
+        session.add(resolved_city)
+        session.commit()
+        session.refresh(resolved_city)
     
-    # add city to cache
-    city = City(name=snow_data.name, resolved_city=resolved_city.id)
-    session.add(city)
-    session.commit()
-    session.refresh(city)
+    # add city to cache if not there
+    statement = select(City).where(City.name == snow_data.name)
+    results = session.exec(statement)
+    city = results.first() # may be None if not found
+    if not city:
+        city = City(name=snow_data.name, resolved_city=resolved_city.id)
+        session.add(city)
+        session.commit()
+        session.refresh(city)
 
     return None
 

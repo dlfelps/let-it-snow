@@ -46,12 +46,11 @@ def get_post(query_city: str, session: SessionDep) -> ResolvedCity:
 
     snow_data = lookup_city(query_city)
 
-    # #add to cache
+    #add to cache
     update_cache(snow_data, session)  
-    # print("updated cache")
-    # # retrieve from db
+    # retrieve from db
     city = get_city(query_city, session) 
-    # print(city)
+
 
   return city
     
