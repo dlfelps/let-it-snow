@@ -17,13 +17,7 @@ def update_cache(snow_data: SnowData, session: Session) -> None:
         session.add(resolved_city)
         session.commit()
         session.refresh(resolved_city)
-    else: # found, but needs updating due to expired cache
-        resolved_city.most_recent = snow_data.most_recent
-        resolved_city.next_predicted = snow_data.most_recent
-        resolved_city.expires = next_christmas()
-        session.add(resolved_city)
-        session.commit()
-        session.refresh(resolved_city)
+
     
     # add city to cache if not there
     statement = select(City).where(City.name == snow_data.name)
@@ -38,6 +32,23 @@ def update_cache(snow_data: SnowData, session: Session) -> None:
     return None
 
 
+def update_expired_cache(snow_data: SnowData, session: Session) -> None:
+    # only used to update ResolvedCity table
+
+    # check if resolved address already exists
+    statement = select(ResolvedCity).where(ResolvedCity.name == snow_data.resolved_name)
+    results = session.exec(statement)
+    resolved_city = results.one() # may be None if not found
+    resolved_city.most_recent = snow_data.most_recent
+    resolved_city.next_predicted = snow_data.most_recent
+    resolved_city.expires = next_christmas()
+    session.add(resolved_city)
+    session.commit()
+    session.refresh(resolved_city)
+    
+
+    return None
+
 
 def get_city(query_city: str, session: Session) -> ResolvedCity:
     statement = select(ResolvedCity).join(City).where(City.name == query_city)
@@ -49,9 +60,9 @@ def get_city(query_city: str, session: Session) -> ResolvedCity:
             return resolved_city #still fresh
         else:
             snow_data = lookup_city(query_city)
-            update_cache(snow_data, session) 
+            update_expired_cache(snow_data, session) 
             results = session.exec(statement)
-            resolved_city = results.first() 
+            resolved_city = results.one() 
             return resolved_city
     else:
         return None
